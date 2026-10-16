@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WEVAPE · 매장 운영 분석</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="WEVAPE 홈">WEVAPE<span>STORE INTELLIGENCE</span></a>
+  <div class="store"><span class="store-mark">W</span><div>송도 트리플스트리트점<small>단일 매장 · 로컬 분석</small></div></div>
+  <p class="nav-label">WORKSPACE</p>
+  <nav aria-label="분석 메뉴">
+    <button class="nav active" data-page="overview"><span>◫</span>운영 요약</button>
+    <button class="nav" data-page="sales"><span>↗</span>매출 분석</button>
+    <button class="nav" data-page="products"><span>▦</span>상품·카테고리</button>
+    <button class="nav" data-page="validation"><span>◇</span>데이터 검증 <i id="nav-issues">—</i></button>
+    <button class="nav" data-page="source"><span>▤</span>데이터 출처</button>
+  </nav>
+  <div class="sidebar-bottom"><span class="dot"></span> LOCAL WORKSPACE<p>읽기 전용 · 데이터베이스 없음<br>원본 파일을 외부로 전송하지 않습니다.</p></div>
+</aside>
+<main>
+  <header><span>매장 운영 분석 <span class="slash">/</span> <b id="breadcrumb">운영 요약</b></span><span class="local-badge">● 로컬 전용</span></header>
+  <div class="content">
+    <div class="page-heading"><div><p class="eyebrow">WEVAPE · SONGDO TRIPLE STREET</p><h1 id="page-title">매장 운영 요약</h1><p id="page-description">결제와 상품 데이터를 함께 살펴보는 매장 운영 현황입니다.</p></div><span class="outline-badge">1차 MVP</span></div>
+    <section class="notice" aria-label="미확정 데이터 안내"><span class="notice-icon">!</span><div><strong>미확정 분석 데이터</strong><p>결제·상품 금액을 별도로 표시합니다. 최종 매출 기준과 날짜별 데이터 완전성은 미확인입니다. 검증 통과도 매출 승인을 의미하지 않습니다.</p></div><button id="go-validation">검증 상세 →</button></section>
+    <form id="date-form" class="filter-bar"><div class="filter-label">분석 기간 <small id="report-period">불러오는 중</small></div><div class="date-fields"><label>시작일<input id="start-date" type="date" required></label><span>—</span><label>종료일<input id="end-date" type="date" required></label><button class="primary" id="apply" type="submit">적용</button><button type="button" id="reset">전체 기간</button></div></form>
+    <div class="source-line"><span id="source-short">원본 파싱·검증 결과를 불러오는 중…</span><span id="snapshot-short"></span></div>
+    <p id="error" class="error" role="alert" hidden></p><p id="loading" role="status">데이터를 불러오는 중입니다.</p>
+
+    <section class="page" id="overview" aria-labelledby="overview-title">
+      <h2 class="sr-only" id="overview-title">운영 요약</h2>
+      <div class="kpi-grid" id="kpis"></div>
+      <div class="two-columns"><article class="card"><div class="card-head"><div><h2>일별 금액 추이</h2><p>선택 기간 · 취소 부호 포함</p></div><div class="legend"><span class="payment-key">결제 기준</span><span class="item-key">상품 기준</span></div></div><div id="overview-chart" class="chart"></div><div class="card-foot">두 기준의 차이는 보정하지 않습니다. 관측되지 않은 날짜는 0원으로 채우지 않습니다.</div></article><article class="card"><div class="card-head"><div><h2>검증 현황</h2><p>파일 전체 기준</p></div><span class="status-chip" id="overview-status">—</span></div><div id="validation-summary"></div><button class="text-button" id="review-link">불일치 주문 확인 →</button></article></div>
+      <article class="card"><div class="card-head"><div><h2>결제·상품 처리 현황</h2><p>선택 기간 · 고객 수나 객단가로 해석하지 않습니다.</p></div></div><div class="stats-grid" id="event-stats"></div></article>
+    </section>
+
+    <section class="page" id="sales" hidden aria-labelledby="sales-title"><h2 class="sr-only" id="sales-title">매출 분석</h2>
+      <article class="card"><div class="card-head"><div><h2>일별 결제·상품 비교</h2><p>원 단위 금액 · 선택 기간</p></div><div class="legend"><span class="payment-key">결제 기준</span><span class="item-key">상품 기준</span></div></div><div id="daily-chart" class="chart tall"></div><details><summary>정확한 일별 금액 표 보기</summary><div id="daily-table" class="table-scroll"></div></details></article>
+      <article class="card"><div class="card-head"><div><h2>요일별 금액 비교</h2><p>합계 기준입니다. 요일별 관측 일수가 다르므로 단순한 성과 우열을 뜻하지 않습니다.</p></div></div><div id="weekday-chart" class="weekday-chart"></div><div id="weekday-table" class="table-scroll"></div></article>
+    </section>
+
+    <section class="page" id="products" hidden aria-labelledby="products-title"><h2 class="sr-only" id="products-title">상품·카테고리 분석</h2>
+      <article class="card"><div class="card-head wrap"><div><h2>상품 판매 순위 <span id="product-count" class="count"></span></h2><p>상품명·카테고리·상품코드 원문 조합 유지 · 순수량 = 양수수량 − 음수수량</p></div><div class="table-controls"><input id="product-search" type="search" placeholder="상품명·카테고리 검색" aria-label="상품명 또는 카테고리 검색"><select id="product-sort" aria-label="상품 순위 기준"><option value="amount">금액순</option><option value="net_quantity">순수량순</option></select></div></div><div id="product-table" class="table-scroll"></div><div id="product-pagination" class="pagination"></div></article>
+      <article class="card"><div class="card-head"><div><h2>카테고리 구성</h2><p>금액 비중의 분모는 상품 기준 순금액, 수량 비중의 분모는 순수량입니다. 원본 분류를 합치지 않습니다.</p></div></div><div id="category-bars"></div><div id="category-table" class="table-scroll"></div></article>
+    </section>
+
+    <section class="page" id="validation" hidden aria-labelledby="validation-title"><h2 class="sr-only" id="validation-title">데이터 검증</h2>
+      <div id="validation-cards" class="kpi-grid"></div>
+      <article class="card"><div class="card-head"><div><h2>검증 범위와 미확인 단계</h2><p>기존 파서에는 명시적인 단계 완료 표식이 없습니다. 반환 결과로 확인되는 실행과 미검증 범위를 구분합니다.</p></div></div><div id="stage-table" class="table-scroll"></div></article>
+      <article class="card"><div class="card-head"><div><h2>주문별 금액 불일치 <span id="difference-count" class="count"></span></h2><p>선택 기간 · 결제 − 상품 · 할인 배분은 유력 원인이며 확정된 원인이 아닙니다.</p></div></div><div id="difference-table" class="table-scroll"></div><div id="difference-pagination" class="pagination"></div></article>
+      <article class="card"><div class="card-head"><div><h2>취소·할인 검토</h2><p>선택 기간 원본 값과 파일 전체 검증 한계</p></div></div><div id="cancel-review" class="review-content"></div></article>
+      <article class="card"><div class="card-head"><div><h2>검증 이슈와 관찰 정보</h2><p>파일 전체 · 검토 필요 항목을 해결하거나 승인하는 기능은 없습니다.</p></div></div><div id="issues-list" class="review-content"></div></article>
+    </section>
+
+    <section class="page" id="source" hidden aria-labelledby="source-title"><h2 class="sr-only" id="source-title">데이터 출처</h2><article class="card"><div class="card-head"><div><h2>원본과 처리 결과</h2><p>서버 시작 시 기존 파서로 원본을 다시 읽은 메모리 스냅샷입니다.</p></div></div><dl id="provenance" class="provenance"></dl></article><article class="card"><div class="card-head"><h2>현재 구현 범위</h2></div><div class="review-content"><p>구현됨: 단일 파일 읽기 전용 파싱, 날짜 필터, 금액·상품·카테고리 분석, 검증 결과 조회.</p><p>미구현: DB, 파일 업로드·여러 파일 합산, 중복 가져오기 이력, 승인·자동 확정, 고객 재방문·재고·AI 분석.</p><p>원본 또는 파서가 바뀌면 서버를 재시작해야 합니다. 브라우저 새로고침은 같은 실행 스냅샷을 조회합니다.</p></div></article></section>
+    <footer><span>WEVAPE · 매장 운영 분석</span><span>잠정 분석용 · DB 미사용 · 외부 전송 없음</span></footer>
+  </div>
+</main>
+</body>
+</html>

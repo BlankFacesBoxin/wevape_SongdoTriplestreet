@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: wevape-synthetic-preview
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.preview
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: off
