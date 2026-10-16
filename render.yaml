@@ -6,4 +6,4 @@ services:
     dockerfilePath: ./Dockerfile.preview
     dockerContext: .
     healthCheckPath: /healthz
-    autoDeployTrigger: off
+    autoDeployTrigger: 'off'
